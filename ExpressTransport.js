@@ -169,10 +169,13 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
     });
 
     self.native.put(channel, function (request, response) {
+        var d = request.body;
+        _.timestamp.update(d);
+
         self._emitter.emit("updated", {
             id: request.params.id,
             band: request.params.band,
-            value: request.body,
+            value: d,
         });
 
         var rd = {
