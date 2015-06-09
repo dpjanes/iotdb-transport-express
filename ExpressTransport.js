@@ -68,7 +68,8 @@ var ExpressTransport = function (initd, app) {
             unpack: _unpack,
         },
         iotdb.keystore().get("/transports/ExpressTransport/initd"), {
-            prefix: "/"
+            prefix: "/",
+            key_things: "item",
         }
     );
 
@@ -96,11 +97,18 @@ ExpressTransport.prototype._setup_app_things = function () {
             if (ld.end) {
                 var rd = {
                     "@id": self.initd.channel(self.initd),
-                    "item": ids,
+                    "@context": [
+                        "https://iotdb.org/pub/iot",
+                        {
+                            "@vocab": "https://iotdb.org/pub/iot#",
+                        },
+                    ]
                 };
+                rd[self.initd.key_things] = ids;
 
                 response
                     .set('Content-Type', 'application/json')
+                    .set('Access-Control-Allow-Origin', '*')
                     .send(JSON.stringify(rd, null, 2));
 
                 return;
@@ -122,6 +130,12 @@ ExpressTransport.prototype._setup_app_thing = function () {
         }, function (ad) {
             var rd = {
                 "@id": self.initd.channel(self.initd, request.params.id),
+                "@context": [
+                    "https://iotdb.org/pub/iot",
+                    {
+                        "@vocab": "https://iotdb.org/pub/iot#",
+                    },
+                ],
             };
 
             if ((ad.bands === null) || (ad.bands === undefined)) {
@@ -136,6 +150,7 @@ ExpressTransport.prototype._setup_app_thing = function () {
 
             response
                 .set('Content-Type', 'application/json')
+                .set('Access-Control-Allow-Origin', '*')
                 .send(JSON.stringify(rd, null, 2));
         });
     });
@@ -155,6 +170,22 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
                 "@id": self.initd.channel(self.initd, request.params.id, request.params.band),
             };
 
+            if ((request.params.band === "istate") || (request.params.band === "ostate")) {
+                rd["@context"] = [
+                    self.initd.channel(self.initd, request.params.id, "model"),
+                    {
+                        "@vocab": self.initd.channel(self.initd, request.params.id, "model") + "#",
+                    },
+                ]
+            } else if (request.params.band === "meta") {
+                rd["@context"] = [
+                    "https://iotdb.org/pub/iot",
+                    {
+                        "@vocab": "https://iotdb.org/pub/iot#",
+                    },
+                ]
+            }
+
             if (gd.value === null) {
                 response.status(404);
                 rd["error"] = "Not Found";
@@ -162,8 +193,14 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
                 _.defaults(rd, gd.value);
             }
 
+            if (request.params.band === "model") {
+                delete rd["@context"]["@base"];
+                delete rd["@context"]["@vocab"];
+            }
+
             response
                 .set('Content-Type', 'application/json')
+                .set('Access-Control-Allow-Origin', '*')
                 .send(JSON.stringify(rd, null, 2));
         });
     });
