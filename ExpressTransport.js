@@ -93,7 +93,9 @@ ExpressTransport.prototype._setup_app_things = function () {
 
     self.native.use(channel, function (request, response) {
         var ids = [];
-        self.list(function (ld) {
+        self.list({
+            user: request.user,
+        }, function (ld) {
             if (ld.end) {
                 var rd = {
                     "@id": self.initd.channel(self.initd),
@@ -101,12 +103,10 @@ ExpressTransport.prototype._setup_app_things = function () {
                 };
                 rd[self.initd.key_things] = ids;
 
-                response
+                return response
                     .set('Content-Type', 'application/json')
                     .set('Access-Control-Allow-Origin', '*')
                     .send(JSON.stringify(rd, null, 2));
-
-                return;
             }
 
             ids.push(self.initd.channel(self.initd, ld.id));
@@ -122,6 +122,7 @@ ExpressTransport.prototype._setup_app_thing = function () {
     self.native.use(channel, function (request, response) {
         self.about({
             id: request.params.id,
+            user: request.user,
         }, function (ad) {
             var rd = {
                 "@id": self.initd.channel(self.initd, request.params.id),
@@ -138,7 +139,7 @@ ExpressTransport.prototype._setup_app_thing = function () {
                 }
             }
 
-            response
+            return response
                 .set('Content-Type', 'application/json')
                 .set('Access-Control-Allow-Origin', '*')
                 .send(JSON.stringify(rd, null, 2));
@@ -155,6 +156,7 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
         self.get({
             id: request.params.id,
             band: request.params.band,
+            user: request.user,
         }, function (gd) {
             var rd = {
                 "@id": self.initd.channel(self.initd, request.params.id, request.params.band),
@@ -178,7 +180,7 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
                 delete rd["@context"]["@vocab"];
             }
 
-            response
+            return response
                 .set('Content-Type', 'application/json')
                 .set('Access-Control-Allow-Origin', '*')
                 .send(JSON.stringify(rd, null, 2));
@@ -193,13 +195,14 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
             id: request.params.id,
             band: request.params.band,
             value: d,
+            user: request.user,
         });
 
         var rd = {
             "@id": self.initd.channel(self.initd, request.params.id, request.params.band),
         };
 
-        response
+        return response
             .set('Content-Type', 'application/json')
             .send(JSON.stringify(rd, null, 2));
     });
