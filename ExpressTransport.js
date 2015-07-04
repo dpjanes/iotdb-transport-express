@@ -103,6 +103,15 @@ ExpressTransport.prototype._setup_app_things = function () {
                 };
                 rd[self.initd.key_things] = ids;
 
+                if (ld.error) {
+                    rd.error = ld.error;
+                    if (ld.status) {
+                        response.status(ld.status);
+                    } else {
+                        response.status(404);
+                    }
+                }
+
                 return response
                     .set('Content-Type', 'application/json')
                     .set('Access-Control-Allow-Origin', '*')
@@ -169,8 +178,17 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
             }
 
             if (gd.value === null) {
-                response.status(404);
-                rd["error"] = "Not Found";
+                if (gd.status) {
+                    response.status(gd.status);
+                } else {
+                    response.status(404);
+                }
+
+                if (gd.error) {
+                    rd.error = gd.error;
+                } else {
+                    rd.error = "not found";
+                }
             } else {
                 _.defaults(rd, gd.value);
             }
@@ -196,15 +214,8 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
             band: request.params.band,
             value: d,
             user: request.user,
+            response: response,
         });
-
-        var rd = {
-            "@id": self.initd.channel(self.initd, request.params.id, request.params.band),
-        };
-
-        return response
-            .set('Content-Type', 'application/json')
-            .send(JSON.stringify(rd, null, 2));
     });
 };
 
@@ -299,7 +310,27 @@ ExpressTransport.prototype.updated = function (paramd, callback) {
             return;
         }
 
-        callback(ud);
+        var response = ud.response;
+        delete ud.response;
+
+        callback(ud, function(rud) {
+            var rd = {
+                "@id": self.initd.channel(self.initd, ud.id, ud.band),
+            };
+
+            if (rud.error) {
+                rd.error = rud.error;
+                if (rud.status) {
+                    response.status(rud.status);
+                } else {
+                    response.status(404);
+                }
+            }
+
+            return response
+                .set('Content-Type', 'application/json')
+                .send(JSON.stringify(rd, null, 2));
+        });
     });
 };
 
