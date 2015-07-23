@@ -23,6 +23,7 @@
 "use strict";
 
 var iotdb = require('iotdb');
+var iotdb_transport = require('iotdb-transport');
 var _ = iotdb._;
 var bunyan = iotdb.bunyan;
 
@@ -46,7 +47,7 @@ var _pack;
 /* --- constructor --- */
 
 /**
- *  See {iotdb.transporter.Transport#Transport} for documentation.
+ *  See {iotdb_transport.Transport#Transport} for documentation.
  *  <p>
  *  Create a web interface for Express.
  *
@@ -60,8 +61,8 @@ var ExpressTransport = function (initd, app) {
 
     self.initd = _.defaults(
         initd, {
-            channel: iotdb.transporter.channel,
-            unchannel: iotdb.transporter.unchannel,
+            channel: iotdb_transport.channel,
+            unchannel: iotdb_transport.unchannel,
             encode: _encode,
             decode: _decode,
             pack: _pack,
@@ -82,7 +83,8 @@ var ExpressTransport = function (initd, app) {
     this._emitter = new events.EventEmitter();
 };
 
-ExpressTransport.prototype = new iotdb.transporter.Transport();
+ExpressTransport.prototype = new iotdb_transport.Transport();
+ExpressTransport.prototype._class = "ExpressTransport";
 
 /* --- web --- */
 
@@ -222,7 +224,7 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
 /* --- methods --- */
 
 /**
- *  See {iotdb.transporter.Transport#Transport} for documentation.
+ *  See {iotdb_transport.Transport#Transport} for documentation.
  *  <p>
  *  Inherently this does nothing. To properly support this
  *  you should use <code>iotdb.transport.bind</code>
@@ -243,7 +245,7 @@ ExpressTransport.prototype.list = function (paramd, callback) {
 };
 
 /**
- *  See {iotdb.transporter.Transport#Transport} for documentation.
+ *  See {iotdb_transport.Transport#Transport} for documentation.
  *  <p>
  *  Inherently this does nothing. To properly support this
  *  you should use <code>iotdb.transport.bind</code>
@@ -261,7 +263,7 @@ ExpressTransport.prototype.added = function (paramd, callback) {
 };
 
 /**
- *  See {iotdb.transporter.Transport#about} for documentation.
+ *  See {iotdb_transport.Transport#about} for documentation.
  *  <p>
  *  Inherently this does nothing. To properly support this
  *  you should use <code>iotdb.transport.bind</code>
@@ -270,7 +272,7 @@ ExpressTransport.prototype.added = function (paramd, callback) {
 ExpressTransport.prototype.about = function (paramd, callback) {};
 
 /**
- *  See {iotdb.transporter.Transport#get} for documentation.
+ *  See {iotdb_transport.Transport#get} for documentation.
  *  <p>
  *  Inherently this does nothing. To properly support this
  *  you should use <code>iotdb.transport.bind</code>
@@ -279,7 +281,7 @@ ExpressTransport.prototype.about = function (paramd, callback) {};
 ExpressTransport.prototype.get = function (paramd, callback) {};
 
 /**
- *  See {iotdb.transporter.Transport#update} for documentation.
+ *  See {iotdb_transport.Transport#update} for documentation.
  *  <p>
  *  Inherently this does nothing. To properly support this
  *  you should use <code>iotdb.transport.bind</code>
@@ -288,7 +290,7 @@ ExpressTransport.prototype.get = function (paramd, callback) {};
 ExpressTransport.prototype.update = function (id, band, value) {};
 
 /**
- *  See {iotdb.transporter.Transport#updated} for documentation.
+ *  See {iotdb_transport.Transport#updated} for documentation.
  *  <p>
  *  This will be triggered from the Express/Express API
  */
@@ -335,7 +337,7 @@ ExpressTransport.prototype.updated = function (paramd, callback) {
 };
 
 /**
- *  See {iotdb.transporter.Transport#remove} for documentation.
+ *  See {iotdb_transport.Transport#remove} for documentation.
  *  <p>
  *  Inherently this does nothing. To properly support this
  *  you should use <code>iotdb.transport.bind</code>

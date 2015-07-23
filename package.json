@@ -24,6 +24,7 @@
     "main": "index.js", 
     "name": "iotdb-transport-express", 
     "peerDependencies": {
+        "iotdb-transport": "",
         "iotdb": "~0.8.1"
     }, 
     "private": false, 

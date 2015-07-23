@@ -10,6 +10,7 @@
  */
 
 var iotdb = require('iotdb');
+var iotdb_transport = require('iotdb-transport');
 var express = require('express');
 var ExpressTransport = require('../ExpressTransport').ExpressTransport;
 var IOTDBTransport = require("iotdb-transport-iotdb").Transport;
@@ -17,14 +18,14 @@ var IOTDBTransport = require("iotdb-transport-iotdb").Transport;
 var iot = iotdb.iot();
 var things = iot.connect();
 
-var iotdb_transport = new IOTDBTransport(things);
+var iotdb_transporter = new IOTDBTransport(things);
 
 var app = express();
 
 var express_transport = new ExpressTransport({
     prefix: "/api",
 }, app);
-iotdb.transporter.bind(iotdb_transport, express_transport, {
+iotdb_transport.bind(iotdb_transporter, express_transport, {
 });
 
 app.listen(8085, "127.0.0.1", function () {
