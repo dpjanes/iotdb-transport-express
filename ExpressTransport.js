@@ -142,6 +142,14 @@ ExpressTransport.prototype._setup_app_thing = function () {
             if ((ad.bands === null) || (ad.bands === undefined)) {
                 response.status(404);
                 rd["error"] = "Not Found";
+            } else if (ad.bandd) {
+                _.mapObject(ad.bandd, function(url, band) {
+                    if (url) {
+                        rd[band] = url;
+                    } else {
+                        rd[band] = self.initd.channel(self.initd, request.params.id, band);
+                    }
+                });
             } else if (_.is.Array(ad.bands)) {
                 for (var bi in ad.bands) {
                     var band = ad.bands[bi];
@@ -207,15 +215,38 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
     });
 
     self.native.put(channel, function (request, response) {
-        var d = request.body;
-        _.timestamp.update(d);
-
-        self._emitter.emit("updated", {
+        self.get({
             id: request.params.id,
             band: request.params.band,
-            value: d,
             user: request.user,
-            response: response,
+        }, function(gd) {
+            if (gd.error) {
+                var rd = {
+                    "@id": self.initd.channel(self.initd, gd.id, gd.band),
+                };
+                rd.error = gd.error;
+
+                if (gd.status) {
+                    response.status(gd.status);
+                } else {
+                    response.status(404);
+                }
+
+                return response
+                    .set('Content-Type', 'application/json')
+                    .send(JSON.stringify(rd, null, 2));
+            }
+
+            var d = request.body;
+            _.timestamp.update(d);
+
+            self._emitter.emit("updated", {
+                id: request.params.id,
+                band: request.params.band,
+                value: d,
+                user: request.user,
+                response: response,
+            });
         });
     });
 };
@@ -314,24 +345,26 @@ ExpressTransport.prototype.updated = function (paramd, callback) {
         var response = ud.response;
         delete ud.response;
 
-        callback(ud, function(rud) {
-            var rd = {
-                "@id": self.initd.channel(self.initd, ud.id, ud.band),
-            };
+        callback(ud);
+        
+        var rd = {
+            "@id": self.initd.channel(self.initd, ud.id, ud.band),
+        };
 
-            if (rud.error) {
-                rd.error = rud.error;
-                if (rud.status) {
-                    response.status(rud.status);
-                } else {
-                    response.status(404);
-                }
+        /*
+        if (rud.error) {
+            rd.error = rud.error;
+            if (rud.status) {
+                response.status(rud.status);
+            } else {
+                response.status(404);
             }
+        }
+        */
 
-            return response
-                .set('Content-Type', 'application/json')
-                .send(JSON.stringify(rd, null, 2));
-        });
+        return response
+            .set('Content-Type', 'application/json')
+            .send(JSON.stringify(rd, null, 2));
     });
 };
 
