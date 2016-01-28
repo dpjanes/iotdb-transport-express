@@ -307,7 +307,7 @@ ExpressTransport.prototype.get = function (paramd, callback) {};
  *  you should use <code>iotdb.transport.bind</code>
  *  to effectively replace this function.
  */
-ExpressTransport.prototype.update = function (id, band, value) {};
+ExpressTransport.prototype.put = function (id, band, value) {};
 
 /**
  *  See {iotdb_transport.Transport#updated} for documentation.
