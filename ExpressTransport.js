@@ -128,7 +128,7 @@ ExpressTransport.prototype._setup_app_thing = function () {
     var channel = self.initd.channel(self.initd, ':id');
 
     self.native.use(channel, function (request, response) {
-        self.about({
+        self.bands({
             id: request.params.id,
             user: request.user,
         }, function (ad) {
@@ -137,11 +137,11 @@ ExpressTransport.prototype._setup_app_thing = function () {
                 "@context": "https://iotdb.org/pub/iot",
             };
 
-            if ((ad.bands === null) || (ad.bands === undefined)) {
+            if (!ad.bandd) {
                 var not_found = new errors.NotFound();
                 response.status(_.error.code(not_found));
                 rd.error = _.error.message(not_found);
-            } else if (ad.bandd) {
+            } else {
                 _.mapObject(ad.bandd, function(url, band) {
                     if (url) {
                         rd[band] = url;
@@ -149,11 +149,6 @@ ExpressTransport.prototype._setup_app_thing = function () {
                         rd[band] = self.initd.channel(self.initd, request.params.id, band);
                     }
                 });
-            } else if (_.is.Array(ad.bands)) {
-                for (var bi in ad.bands) {
-                    var band = ad.bands[bi];
-                    rd[band] = self.initd.channel(self.initd, request.params.id, band);
-                }
             }
 
             return response
@@ -283,13 +278,13 @@ ExpressTransport.prototype.added = function (paramd, callback) {
 };
 
 /**
- *  See {iotdb_transport.Transport#about} for documentation.
+ *  See {iotdb_transport.Transport#bands} for documentation.
  *  <p>
  *  Inherently this does nothing. To properly support this
  *  you should use <code>iotdb.transport.bind</code>
  *  to effectively replace this function.
  */
-ExpressTransport.prototype.about = function (paramd, callback) {};
+ExpressTransport.prototype.bands = function (paramd, callback) {};
 
 /**
  *  See {iotdb_transport.Transport#get} for documentation.
