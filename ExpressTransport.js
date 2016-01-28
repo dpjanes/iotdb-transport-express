@@ -24,6 +24,7 @@
 
 var iotdb = require('iotdb');
 var iotdb_transport = require('iotdb-transport');
+var errors = iotdb_transport.errors;
 var _ = iotdb._;
 
 var path = require('path');
@@ -105,12 +106,9 @@ ExpressTransport.prototype._setup_app_things = function () {
                 rd[self.initd.key_things] = ids;
 
                 if (ld.error) {
-                    rd.error = ld.error;
-                    if (ld.status) {
-                        response.status(ld.status);
-                    } else {
-                        response.status(404);
-                    }
+                    rd.error = _.error.message(ld.error);
+
+                    response.status(_.error.code(ld.error));
                 }
 
                 return response
@@ -140,8 +138,9 @@ ExpressTransport.prototype._setup_app_thing = function () {
             };
 
             if ((ad.bands === null) || (ad.bands === undefined)) {
-                response.status(404);
-                rd["error"] = "Not Found";
+                var not_found = new errors.NotFound();
+                response.status(_.error.code(not_found));
+                rd.error = _.error.message(not_found);
             } else if (ad.bandd) {
                 _.mapObject(ad.bandd, function(url, band) {
                     if (url) {
@@ -187,17 +186,12 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
             }
 
             if (gd.value === null) {
-                if (gd.status) {
-                    response.status(gd.status);
-                } else {
-                    response.status(404);
+                if (!gd.error) {
+                    gd.error = new errors.NotFound();
                 }
 
-                if (gd.error) {
-                    rd.error = gd.error;
-                } else {
-                    rd.error = "not found";
-                }
+                rd.error = _.error.message(gd.error);
+                response.status(_.error.code(gd.error));
             } else {
                 _.defaults(rd, gd.value);
             }
@@ -224,13 +218,9 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
                 var rd = {
                     "@id": self.initd.channel(self.initd, gd.id, gd.band),
                 };
-                rd.error = gd.error;
+                rd.error = _.error.message(gd.error);
 
-                if (gd.status) {
-                    response.status(gd.status);
-                } else {
-                    response.status(404);
-                }
+                response.status(_.error.code(gd.error));
 
                 return response
                     .set('Content-Type', 'application/json')
@@ -270,7 +260,7 @@ ExpressTransport.prototype.list = function (paramd, callback) {
 
     callback({
         end: true,
-        error: new Error("N/A"),
+        error: new errors.NotImplemented(),
     });
 };
 
@@ -350,17 +340,6 @@ ExpressTransport.prototype.updated = function (paramd, callback) {
         var rd = {
             "@id": self.initd.channel(self.initd, ud.id, ud.band),
         };
-
-        /*
-        if (rud.error) {
-            rd.error = rud.error;
-            if (rud.status) {
-                response.status(rud.status);
-            } else {
-                response.status(404);
-            }
-        }
-        */
 
         return response
             .set('Content-Type', 'application/json')
