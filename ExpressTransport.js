@@ -97,19 +97,19 @@ ExpressTransport.prototype._setup_app_things = function () {
         var ids = [];
         self.list({
             user: request.user,
-        }, function (ld) {
-            if (ld.end) {
+        }, function (error, ld) {
+            if (error) {
+                rd.error = _.error.message(ld.error);
+                response.status(_.error.code(ld.error));
+                ld = null;
+            }
+
+            if (!ld) {
                 var rd = {
                     "@id": self.initd.channel(self.initd),
                     "@context": "https://iotdb.org/pub/iot",
                 };
                 rd[self.initd.key_things] = ids;
-
-                if (ld.error) {
-                    rd.error = _.error.message(ld.error);
-
-                    response.status(_.error.code(ld.error));
-                }
 
                 return response
                     .set('Content-Type', 'application/json')
@@ -240,16 +240,12 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
  */
 ExpressTransport.prototype.list = function (paramd, callback) {
     var self = this;
+    var ld;
 
-    if (arguments.length === 1) {
-        paramd = {};
-        callback = arguments[0];
-    }
+    self._validate_list(paramd, callback);
 
-    callback({
-        end: true,
-        error: new errors.NotImplemented(),
-    });
+    ld = _.shallowCopy(paramd);
+    callback(new errors.NeverImplemented(), ld);
 };
 
 /**

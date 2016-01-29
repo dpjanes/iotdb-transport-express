@@ -13,6 +13,3 @@ var Transport = require('../ExpressTransport').ExpressTransport;
 
 var p = new Transport({
 });
-p.list(function(ids) {
-    console.log(ids);
-});
