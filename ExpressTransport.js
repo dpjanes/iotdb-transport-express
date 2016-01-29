@@ -131,25 +131,19 @@ ExpressTransport.prototype._setup_app_thing = function () {
         self.bands({
             id: request.params.id,
             user: request.user,
-        }, function (ad) {
+        }, function (error, ad) {
             var rd = {
                 "@id": self.initd.channel(self.initd, request.params.id),
                 "@context": "https://iotdb.org/pub/iot",
             };
 
-            if (!ad.bandd) {
-                var not_found = new errors.NotFound();
-                response.status(_.error.code(not_found));
-                rd.error = _.error.message(not_found);
-            } else {
-                _.mapObject(ad.bandd, function(url, band) {
-                    if (url) {
-                        rd[band] = url;
-                    } else {
-                        rd[band] = self.initd.channel(self.initd, request.params.id, band);
-                    }
-                });
-            }
+            _.mapObject(ad.bandd, function(url, band) {
+                if (url) {
+                    rd[band] = url;
+                } else {
+                    rd[band] = self.initd.channel(self.initd, request.params.id, band);
+                }
+            });
 
             return response
                 .set('Content-Type', 'application/json')
@@ -268,11 +262,6 @@ ExpressTransport.prototype.list = function (paramd, callback) {
 ExpressTransport.prototype.added = function (paramd, callback) {
     var self = this;
 
-    if (arguments.length === 1) {
-        paramd = {};
-        callback = arguments[0];
-    }
-
     var channel = self.initd.channel(self.initd);
 };
 
@@ -283,7 +272,9 @@ ExpressTransport.prototype.added = function (paramd, callback) {
  *  you should use <code>iotdb.transport.bind</code>
  *  to effectively replace this function.
  */
-ExpressTransport.prototype.bands = function (paramd, callback) {};
+ExpressTransport.prototype.bands = function (paramd, callback) {
+    callback(new errors.NeverImplemented(), null);
+};
 
 /**
  *  See {iotdb_transport.Transport#get} for documentation.
