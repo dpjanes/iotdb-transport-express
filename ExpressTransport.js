@@ -324,7 +324,7 @@ ExpressTransport.prototype.updated = function (paramd, callback) {
         var response = ud.response;
         delete ud.response;
 
-        callback(ud);
+        callback(null, ud);
         
         var rd = {
             "@id": self.initd.channel(self.initd, ud.id, ud.band),
