@@ -98,26 +98,28 @@ ExpressTransport.prototype._setup_app_things = function () {
         self.list({
             user: request.user,
         }, function (error, ld) {
+            if (!error && ld && ld.id) {
+                ids.push(self.initd.channel(self.initd, ld.id));
+                return;
+            }
+
+            var rd = {
+                "@id": self.initd.channel(self.initd),
+                "@context": "https://iotdb.org/pub/iot",
+            };
+
             if (error) {
                 rd.error = _.error.message(ld.error);
                 response.status(_.error.code(ld.error));
-                ld = null;
-            }
-
-            if (!ld) {
-                var rd = {
-                    "@id": self.initd.channel(self.initd),
-                    "@context": "https://iotdb.org/pub/iot",
-                };
+            } else {
                 rd[self.initd.key_things] = ids;
-
-                return response
-                    .set('Content-Type', 'application/json')
-                    .set('Access-Control-Allow-Origin', '*')
-                    .send(JSON.stringify(rd, null, 2));
             }
 
-            ids.push(self.initd.channel(self.initd, ld.id));
+            return response
+                .set('Content-Type', 'application/json')
+                .set('Access-Control-Allow-Origin', '*')
+                .send(JSON.stringify(rd, null, 2));
+
         });
     });
 };
@@ -137,7 +139,7 @@ ExpressTransport.prototype._setup_app_thing = function () {
                 "@context": "https://iotdb.org/pub/iot",
             };
 
-            _.mapObject(ad.bandd, function(url, band) {
+            _.mapObject(ad.bandd, function (url, band) {
                 if (url) {
                     rd[band] = url;
                 } else {
@@ -169,9 +171,9 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
             };
 
             if ((request.params.band === "istate") || (request.params.band === "ostate")) {
-                rd["@context"] = self.initd.channel(self.initd, request.params.id, "model")
+                rd["@context"] = self.initd.channel(self.initd, request.params.id, "model");
             } else if (request.params.band === "meta") {
-                rd["@context"] = "https://iotdb.org/pub/iot"
+                rd["@context"] = "https://iotdb.org/pub/iot";
             }
 
             if (!error && !gd.value) {
@@ -201,7 +203,7 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
             id: request.params.id,
             band: request.params.band,
             user: request.user,
-        }, function(error, gd) {
+        }, function (error, gd) {
             if (error) {
                 var rd = {
                     "@id": self.initd.channel(self.initd, gd.id, gd.band),
@@ -321,7 +323,7 @@ ExpressTransport.prototype.updated = function (paramd, callback) {
         delete ud.response;
 
         callback(null, ud);
-        
+
         var rd = {
             "@id": self.initd.channel(self.initd, ud.id, ud.band),
         };
