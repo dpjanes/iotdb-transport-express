@@ -169,7 +169,7 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
             id: request.params.id,
             band: request.params.band,
             user: request.user,
-        }, function (gd) {
+        }, function (error, gd) {
             var rd = {
                 "@id": self.initd.channel(self.initd, request.params.id, request.params.band),
             };
@@ -180,13 +180,12 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
                 rd["@context"] = "https://iotdb.org/pub/iot"
             }
 
-            if (gd.value === null) {
-                if (!gd.error) {
-                    gd.error = new errors.NotFound();
-                }
+            if (!error && !gd.value) {
+                error = new errors.NotFound();
+            }
 
-                rd.error = _.error.message(gd.error);
-                response.status(_.error.code(gd.error));
+            if (error) {
+                response.status(_.error.code(error));
             } else {
                 _.defaults(rd, gd.value);
             }
@@ -208,8 +207,8 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
             id: request.params.id,
             band: request.params.band,
             user: request.user,
-        }, function(gd) {
-            if (gd.error) {
+        }, function(error, gd) {
+            if (error) {
                 var rd = {
                     "@id": self.initd.channel(self.initd, gd.id, gd.band),
                 };
@@ -293,7 +292,9 @@ ExpressTransport.prototype.bands = function (paramd, callback) {};
  *  you should use <code>iotdb.transport.bind</code>
  *  to effectively replace this function.
  */
-ExpressTransport.prototype.get = function (paramd, callback) {};
+ExpressTransport.prototype.get = function (paramd, callback) {
+    callback(new errors.NotImplemented(), null);
+};
 
 /**
  *  See {iotdb_transport.Transport#update} for documentation.

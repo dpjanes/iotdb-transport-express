@@ -13,12 +13,21 @@ var Transport = require('../ExpressTransport').ExpressTransport;
 
 var p = new Transport({
 });
+BROKEN
 p.get("MyThingID", "meta", function(id, band, value) {
+    if (error) {
+        console.log("#", error);
+        return;
+    }
     console.log("+", "get", id, band, value);
 });
 p.updated(function(id, band, value) {
     if (value === undefined) {
         p.get(id, band, function(_id, _band, value) {
+            if (error) {
+                console.log("#", error);
+                return;
+            }
             console.log("+", id, band, value);
         });
     } else {
