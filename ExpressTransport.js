@@ -293,7 +293,7 @@ ExpressTransport.prototype.bands = function (paramd, callback) {};
  *  to effectively replace this function.
  */
 ExpressTransport.prototype.get = function (paramd, callback) {
-    callback(new errors.NotImplemented(), null);
+    callback(new errors.NeverImplemented(), null);
 };
 
 /**
@@ -303,7 +303,9 @@ ExpressTransport.prototype.get = function (paramd, callback) {
  *  you should use <code>iotdb.transport.bind</code>
  *  to effectively replace this function.
  */
-ExpressTransport.prototype.put = function (id, band, value) {};
+ExpressTransport.prototype.put = function (paramd, callback) {
+    callback(new errors.NeverImplemented(), null);
+};
 
 /**
  *  See {iotdb_transport.Transport#updated} for documentation.
