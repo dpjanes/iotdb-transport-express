@@ -341,7 +341,17 @@ ExpressTransport.prototype.updated = function (paramd, callback) {
  *  you should use <code>iotdb.transport.bind</code>
  *  to effectively replace this function.
  */
-ExpressTransport.prototype.remove = function (paramd) {};
+ExpressTransport.prototype.remove = function (paramd) {
+    var self = this;
+
+    self._validate_remove(paramd, callback);
+
+    var rd = _.shallowCopy(paramd);
+    delete rd.band;
+    delete rd.value;
+
+    callback(new errors.NotImplemented(), rd);
+};
 
 /* -- internals -- */
 var _encode = function (s) {
