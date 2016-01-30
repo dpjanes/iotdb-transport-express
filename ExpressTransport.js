@@ -246,7 +246,7 @@ ExpressTransport.prototype.list = function (paramd, callback) {
 
     self._validate_list(paramd, callback);
 
-    ld = _.shallowCopy(paramd);
+    ld = _.d.clone.shallow(paramd);
     callback(new errors.NeverImplemented(), ld);
 };
 
@@ -346,7 +346,7 @@ ExpressTransport.prototype.remove = function (paramd) {
 
     self._validate_remove(paramd, callback);
 
-    var rd = _.shallowCopy(paramd);
+    var rd = _.d.clone.shallow(paramd);
     delete rd.band;
     delete rd.value;
 
