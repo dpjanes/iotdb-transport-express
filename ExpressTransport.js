@@ -183,12 +183,14 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
             if (error) {
                 response.status(_.error.code(error));
             } else {
-                _.defaults(rd, gd.value);
+                rd = _.defaults(rd, gd.value);
             }
 
             if (request.params.band === "model") {
-                delete rd["@context"]["@base"];
-                delete rd["@context"]["@vocab"];
+                if (rd["@context"]) {
+                    delete rd["@context"]["@base"];
+                    delete rd["@context"]["@vocab"];
+                }
             }
 
             return response
