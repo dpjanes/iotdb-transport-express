@@ -172,7 +172,7 @@ ExpressTransport.prototype._setup_app_thing_band = function () {
 
             if ((request.params.band === "istate") || (request.params.band === "ostate")) {
                 rd["@context"] = self.initd.channel(self.initd, request.params.id, "model");
-            } else if (request.params.band === "meta") {
+            } else if ((request.params.band === "meta") || (request.params.band === "connection")) {
                 rd["@context"] = "https://iotdb.org/pub/iot";
             }
 
