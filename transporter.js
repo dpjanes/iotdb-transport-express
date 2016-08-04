@@ -51,7 +51,6 @@ const make = (initd, app) => {
         },
         iotdb.keystore().get("/transports/ExpressTransport/initd"), {
             prefix: "/",
-            key_things: "iot:thing",
         }
     );
 
@@ -76,7 +75,7 @@ const make = (initd, app) => {
     };
 
     // -- internals 
-    const _setup_app_things = () => {
+    const _app_get_things = () => {
         const url = _initd.channel(_initd);
 
         _app.use(url, (request, response) => {
@@ -89,8 +88,8 @@ const make = (initd, app) => {
                         const rd = {
                             "@id": url,
                             "@context": "https://iotdb.org/pub/iot",
+                            "iot:thing": ids,
                         };
-                        rd[_initd.key_things] = ids;
 
                         response
                             .set('Content-Type', 'application/json')
@@ -105,10 +104,10 @@ const make = (initd, app) => {
         });
     };
 
-    const _setup_app_thing = () => {
+    const _app_get_thing = () => {
         const url = _initd.channel(_initd, ':id');
 
-        _app.use(url, function (request, response) {
+        _app.use(url, (request, response) => {
             self.bands({
                 id: request.params.id,
                 user: request.user,
@@ -136,10 +135,10 @@ const make = (initd, app) => {
         });
     };
 
-    const _setup_app_band = function () {
+    const _app_get_band = () => {
         const url = _initd.channel(_initd, ':id', ':band');
 
-        _app.get(url, function (request, response) {
+        _app.get(url, (request, response) => {
             self.get({
                 id: request.params.id,
                 band: request.params.band,
@@ -174,9 +173,49 @@ const make = (initd, app) => {
         });
     };
 
-    _setup_app_band();
-    _setup_app_thing();
-    _setup_app_things();
+    const _app_put_band = () => {
+        const url = _initd.channel(_initd, ':id', ':band');
+
+        _app.put(url, (request, response) => {
+            self.put({
+                id: request.params.id,
+                band: request.params.band,
+                value: _.timestamp.add(request.body),
+                user: request.user,
+            })
+                .first()
+                .subscribe(
+                    d => {
+                        const rd = _.d.compose.shallow({
+                            "@id": _initd.channel(_initd, request.params.id, request.params.band),
+                            "@context": "https://iotdb.org/pub/iot",
+                            "iot:thing": "..",
+                        }, d.value);
+
+                        response
+                            .set('Content-Type', 'application/json')
+                            .set('Access-Control-Allow-Origin', '*')
+                            .send(JSON.stringify(rd, null, 2));
+                    },
+                    error => {
+                        if (error instanceof Rx.EmptyError) {
+                            error = new errors.NotFound();
+                        }
+
+                        response
+                            .set('Content-Type', 'text/plain')
+                            .status(_.error.code(error))
+                            .send(_.error.message(error))
+                    }
+
+                );
+        });
+    };
+
+    _app_put_band();
+    _app_get_band();
+    _app_get_thing();
+    _app_get_things();
 
     return self;
 };
