@@ -49,7 +49,7 @@ const express_transport = express_transporter.make({
 express_transport.use(iotdb_transport)
 
 /**
- *  The clever bit - when one is added, test the put
+ *  The clever bit - when one is added, test the put using Unirest
  */
 express_transport
     .added()
@@ -65,9 +65,9 @@ express_transport
                     })
                     .end((result) => {
                         if (result.error) {
-                            console.log("HERE:A", result.error)
+                            console.log("#", "unirest.put", _.error.message(result.error))
                         } else {
-                            console.log("HERE:B", result.body)
+                            console.log("+", "unirest.put", result.body);
                         }
                     });
             }, 1500);
