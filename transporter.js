@@ -46,10 +46,8 @@ const make = (initd, app) => {
             unchannel: iotdb_transport.unchannel,
             encode: s => s.replace(/[\/$%#.\]\[]/g, (c) => '%' + c.charCodeAt(0).toString(16)),
             decode: s => decodeURIComponent(s),
-            unpack: (d, id, band) => _.d.transform(d, { pre: _.ld_compact, key: _initd._decode, }),
-            pack: (d, id, band) => _.d.transform(d, { pre: _.ld_compact, key: _initd._encode, }),
         },
-        iotdb.keystore().get("/transports/ExpressTransport/initd"), {
+        iotdb.keystore().get("/transports/iotdb-transport-express/initd"), {
             prefix: "/",
         }
     );

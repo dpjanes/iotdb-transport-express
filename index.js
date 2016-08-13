@@ -22,9 +22,5 @@
 
 "use strict";
 
-exports.Transport = require('./ExpressTransport').ExpressTransport;
-
 const transporter = require('./transporter');
 exports.make = transporter.make;
-
-
