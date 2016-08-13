@@ -1,9 +1,9 @@
 /*
- *  server.js
+ *  server_put.js
  *
  *  David Janes
  *  IOTDB.org
- *  2016-08-04
+ *  2016-08-13
  *
  *  Copyright [2013-2016] [David P. Janes]
  *
@@ -47,3 +47,31 @@ const express_transport = express_transporter.make({
 
 // the actual gets data from the source
 express_transport.use(iotdb_transport)
+
+/**
+ *  The clever bit - when one is added, test the put using Unirest
+ */
+express_transport
+    .added()
+    .subscribe(
+        ad => {
+            let count = 0;
+            setInterval(() => {
+                unirest
+                    .put("http://127.0.0.1:3000/" + ad.id + "/ostate")
+                    .type('json')
+                    .json({
+                        "on": count++ % 2,
+                    })
+                    .end((result) => {
+                        if (result.error) {
+                            console.log("#", "unirest.put", _.error.message(result.error))
+                        } else {
+                            console.log("+", "unirest.put", result.body);
+                        }
+                    });
+            }, 1500);
+        }
+    );
+
+
