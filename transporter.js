@@ -74,7 +74,7 @@ const make = (initd, app) => {
 
     // -- internals 
     const _app_get_things = () => {
-        const url = _initd.channel(_initd);
+        const url = _initd.channel(_initd, {});
 
         _app.use(url, (request, response) => {
             self.list({
@@ -103,7 +103,9 @@ const make = (initd, app) => {
     };
 
     const _app_get_thing = () => {
-        const url = _initd.channel(_initd, ':id');
+        const url = _initd.channel(_initd, {
+            id: ':id'
+        });
 
         _app.use(url, (request, response) => {
             self.bands({
@@ -115,7 +117,9 @@ const make = (initd, app) => {
                 .subscribe(
                     b => {
                         const rd = _.d.compose.shallow({
-                            "@id": _initd.channel(_initd, request.params.id),
+                            "@id": _initd.channel(_initd, {
+                                id: request.params.id
+                            }),
                             "@context": "https://iotdb.org/pub/iot",
                             "@type": "iot:Thing",
                         }, b);
@@ -134,7 +138,10 @@ const make = (initd, app) => {
     };
 
     const _app_get_band = () => {
-        const url = _initd.channel(_initd, ':id', ':band');
+        const url = _initd.channel(_initd, {
+            id: ':id', 
+            band: ':band'
+        });
 
         _app.get(url, (request, response) => {
             self.get({
@@ -146,7 +153,10 @@ const make = (initd, app) => {
                 .subscribe(
                     d => {
                         const rd = _.d.compose.shallow({
-                            "@id": _initd.channel(_initd, request.params.id, request.params.band),
+                            "@id": _initd.channel(_initd, {
+                                id: request.params.id, 
+                                band: request.params.band
+                            }),
                             "@context": "https://iotdb.org/pub/iot",
                             "iot:thing": "..",
                         }, d.value);
@@ -172,7 +182,10 @@ const make = (initd, app) => {
     };
 
     const _app_put_band = () => {
-        const url = _initd.channel(_initd, ':id', ':band');
+        const url = _initd.channel(_initd, {
+            id: ':id', 
+            band: ':band'
+        });
 
         _app.put(url, (request, response) => {
             self.put({
@@ -185,7 +198,10 @@ const make = (initd, app) => {
                 .subscribe(
                     d => {
                         const rd = _.d.compose.shallow({
-                            "@id": _initd.channel(_initd, request.params.id, request.params.band),
+                            "@id": _initd.channel(_initd, {
+                                id: request.params.id, 
+                                band: request.params.band
+                            }),
                             "@context": "https://iotdb.org/pub/iot",
                             "iot:thing": "..",
                         }, d.value);
