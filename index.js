@@ -24,3 +24,5 @@
 
 const transporter = require('./transporter');
 exports.make = transporter.make;
+
+exports.longpoll = require('./longpoll');
