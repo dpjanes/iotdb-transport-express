@@ -13,7 +13,7 @@ There are code samples in GitHub.
 ## Use
 ### Express Transporter
 
-Use as follows. First, cretae an app
+Use as follows. First, create an app
 
     const express = require('express');
     const body_parser = require("body-parser");
@@ -50,8 +50,13 @@ you will see an API to your things.
 
 ### Express Longpoll Transporter
 
-The setup is the same as above, up until the Express Transporter step - 
-in fact you can (and probably will) use all this code together.
+The setup is much the same as above, except you'll need
+to have cookie support
+
+    const cookie_parser = require("cookie-parser");
+    app.use(cookie_parser());
+
+Then add this code:
 
     const longpoll_transporter = express_transport.longpoll.make({
         prefix: "/things",
