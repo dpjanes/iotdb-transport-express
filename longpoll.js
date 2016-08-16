@@ -63,7 +63,14 @@ const make = (initd, app) => {
         const rd = _.d.clone.shallow(d);
 
         _subject_map
-            .forEach(subject => subject.onNext(rd));
+            .forEach(subject => {
+                subject.onNext(rd);
+                subject.__any = true;
+
+                if (subject.__waiting) {
+                    subject.onCompleted();
+                }
+            })
         
         observer.onNext(rd);
         observer.onCompleted();
@@ -89,7 +96,7 @@ const make = (initd, app) => {
 
         _app.use(url, (request, response) => {
             if (!request.cookies) {
-                throw new errors.InternalError("cookies middleware is required");
+                throw new errors.Internal("cookies middleware is required");
             }
 
             let cookie_value = request.cookies[_initd.cookie_key]
@@ -100,23 +107,30 @@ const make = (initd, app) => {
 
             let subject = _subject_map.get(cookie_value);
             if (!subject) {
-                _subject_map.set(cookie_value, subject = new Rx.ReplaySubject(null, 5 * 60 * 1000));
+                _subject_map.set(cookie_value, subject = new Rx.ReplaySubject()); // null, 5 * 60 * 1000));
             }
 
+            subject.__waiting = true;
             subject
-                .reduce((ds, d) => ds.concat([ d ]), [])
+                // .map(d => { console.log(d); return d; })
+                .reduce((ad, d) => { ad[_initd.channel(_initd, d)] = d.value; return ad }, {})
                 .subscribe(
-                    d => {
+                    ad => {
                         response
                             .set('Content-Type', 'text/plain')
-                            .send(JSON.stringify(ds, null, 2));
+                            .send(JSON.stringify(ad, null, 2));
+
                     },
                     error => console.log("#", _.error.message(error)),
                     done => {
-                        // subject = new Rx.ReplaySubject();
+                        _subject_map.set(cookie_value, subject = new Rx.ReplaySubject()); // null, 5 * 60 * 1000));
                         console.log("+", "<end>")
                     }
                 )
+
+            if (subject.__any) {
+                subject.onCompleted();
+            }
         });
     };
 
