@@ -45,12 +45,12 @@ const make = (initd, app) => {
         initd, {
             channel: iotdb_transport.channel,
             unchannel: iotdb_transport.unchannel,
-            encode: s => s.replace(/[\/$%#.\]\[]/g, (c) => '%' + c.charCodeAt(0).toString(16)),
+            encode: s => s.replace(/[\/$%#\]\[]/g, (c) => '%' + c.charCodeAt(0).toString(16)),
             decode: s => decodeURIComponent(s),
         },
         iotdb.keystore().get("/transports/iotdb-transport-express/initd"), {
             prefix: "/",
-            name: "longpoll",
+            name: ".longpoll",
             cookie_key: "transport-longpoll",
         }
     );

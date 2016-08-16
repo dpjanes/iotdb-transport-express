@@ -36,14 +36,14 @@ app.listen(3000, function () {
 const iotdb = require("iotdb");
 iotdb.use("homestar-wemo");
 
-const iotdb_transporter = require("../../iotdb-transport-iotdb/transporter");
-const iotdb_transport = iotdb_transporter.make({}, iotdb.connect("WeMoSocket"));
+const iotdb_transport = require("../../iotdb-transport-iotdb/transporter");
+const iotdb_transporter = iotdb_transport.make({}, iotdb.connect("WeMoSocket"));
 
 // this is the actual transporter
-const express_transporter = require("../transporter")
-const express_transport = express_transporter.make({
-    prefix: "/",
+const express_transport = require("../transporter")
+const express_transporter = express_transport.make({
+    prefix: "/things",
 }, app)
 
 // the actual gets data from the source
-express_transport.use(iotdb_transport)
+express_transporter.use(iotdb_transporter)

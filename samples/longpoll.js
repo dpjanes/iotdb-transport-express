@@ -37,18 +37,14 @@ app.listen(3000, function () {
 // this is the source 
 const iotdb = require("iotdb");
 iotdb.use("homestar-wemo");
-// iotdb.use("homestar-feed");
 
-const iotdb_transporter = require("../../iotdb-transport-iotdb/transporter");
-// const iotdb_transport = iotdb_transporter.make({}, iotdb.connect("USGSEarthquake"));
-const iotdb_transport = iotdb_transporter.make({}, iotdb.connect("WeMoSocket"));
+const iotdb_transport = require("../../iotdb-transport-iotdb/transporter");
+const iotdb_transporter = iotdb_transport.make({}, iotdb.connect("WeMoSocket"));
 
 // this is the actual transporter
-const longpoll_transporter = require("../longpoll")
-const express_transport = longpoll_transporter.make({
-    prefix: "/",
+const longpoll_transport = require("../longpoll")
+const longpoll_transporter = longpoll_transport.make({
+    prefix: "/things",
 }, app)
 
-// the actual gets data from the source
-// express_transport.monitor(iotdb_transport)
-express_transport.use(iotdb_transport)
+longpoll_transporter.use(iotdb_transporter)
