@@ -8,7 +8,10 @@ There's two different (but complimentary) transporters in this package,
 one for just serving pages and another for longpolling so you 
 can get updates
 
-## Express Transporter
+There are code samples in GitHub.
+
+## Use
+### Express Transporter
 
 Use as follows. First, cretae an app
 
@@ -28,12 +31,12 @@ In this particular example, we will connect to a WeMoSocket on the network.
     
     const things = iotdb.connect("WeMoSocket");
 
-    const iotdb_transport = require("../../iotdb-transport-iotdb/transporter");
+    const iotdb_transport = require("iotdb-transport-iotdb");
     const iotdb_transporter = iotdb_transport.make({}, things);
 
-Then we create a transporter for Express.
+Then we create a Express Transporter.
 
-    const express_transport = require("../transporter")
+    const express_transport = require("iotdb-transport-express");
     const express_transporter = express_transport.make({
         prefix: "/things",
     }, app)
@@ -44,3 +47,20 @@ Then we tell the Express Transporter to get all the data from the IOTDB Transpor
 
 That's it - we are operational. If you go to [http://localhost:3000/things](http://localhost:3000/things)
 you will see an API to your things. 
+
+### Express Longpoll Transporter
+
+The setup is the same as above, up until the Express Transporter step - 
+in fact you can (and probably will) use all this code together.
+
+    const longpoll_transporter = express_transport.longpoll.make({
+        prefix: "/things",
+    }, app)
+
+    longpoll_transporter.use(iotdb_transporter)
+
+That's it - we are operational. If you go to [http://localhost:3000/things/.longpoll](http://localhost:3000/things/.longpoll)
+it will longpoll until things change (or a timeout happens).
+
+The Longpoll Transporter will batch multiple updates together, will support multiple clients
+and probably everything else you want.
