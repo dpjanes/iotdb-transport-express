@@ -55,24 +55,12 @@ const make = (initd, app) => {
         }
     );
 
+    // boilerplate
     self.rx.list = (observer, d) => {
         observer.onCompleted();
     };
 
     self.rx.put = (observer, d) => {
-        const rd = _.d.clone.shallow(d);
-
-        _subject_map
-            .forEach(subject => {
-                subject.onNext(rd);
-                subject.__any = true;
-
-                if (subject.__waiting) {
-                    subject.onCompleted();
-                }
-            })
-        
-        observer.onNext(rd);
         observer.onCompleted();
     };
     
@@ -88,7 +76,46 @@ const make = (initd, app) => {
         observer.onCompleted();
     };
 
+    // important: when we get hooked up via use, _then_ start monitoring
+    const _super_use = self.use;
+    self.use = (...rest) => {
+        _super_use(...rest);
+
+        _monitor();
+    };
+
     // -- internals 
+    const _make_replay_subject = () => {
+        return new Rx.ReplaySubject(null, 5 * 60 * 1000);
+    };
+
+    const _updated = d => {
+        const rd = _.d.clone.shallow(d);
+
+        _subject_map
+            .forEach(subject => {
+                subject.onNext(rd);
+                subject.__any = true;
+
+                if (subject.__waiting) {
+                    subject.onCompleted();
+                }
+            })
+    };
+
+    const _monitor = () => {
+        self.updated()
+            .subscribe(
+                _updated,
+                error => {
+                    logger.error({
+                        method: "_monitor/updated/error",
+                        error: _.error.message(error),
+                    }, "this should really never happy - likely no more updated will happen");
+                }
+            );
+    };
+
     const _app_get = () => {
         const url = _initd.channel(_initd, {
             id: _initd.name,
@@ -107,23 +134,26 @@ const make = (initd, app) => {
 
             let subject = _subject_map.get(cookie_value);
             if (!subject) {
-                _subject_map.set(cookie_value, subject = new Rx.ReplaySubject()); // null, 5 * 60 * 1000));
+                _subject_map.set(cookie_value, subject = _make_replay_subject());
             }
 
             subject.__waiting = true;
             subject
-                // .map(d => { console.log(d); return d; })
                 .reduce((ad, d) => { ad[_initd.channel(_initd, d)] = d.value; return ad }, {})
                 .subscribe(
                     ad => {
                         response
                             .set('Content-Type', 'text/plain')
                             .send(JSON.stringify(ad, null, 2));
-
                     },
-                    error => console.log("#", _.error.message(error)),
+                    error => {
+                        logger.error({
+                            method: "_app_get/_app.use/subject.error",
+                            error: _.error.message(error),
+                        }, "may not be serious");
+                    },
                     done => {
-                        _subject_map.set(cookie_value, subject = new Rx.ReplaySubject()); // null, 5 * 60 * 1000));
+                        _subject_map.set(cookie_value, subject = _make_replay_subject());
                         console.log("+", "<end>")
                     }
                 )
@@ -135,6 +165,7 @@ const make = (initd, app) => {
     };
 
     _app_get();
+    // _monitor();
 
     return self;
 };

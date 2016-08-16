@@ -50,4 +50,5 @@ const express_transport = longpoll_transporter.make({
 }, app)
 
 // the actual gets data from the source
-express_transport.monitor(iotdb_transport)
+// express_transport.monitor(iotdb_transport)
+express_transport.use(iotdb_transport)
