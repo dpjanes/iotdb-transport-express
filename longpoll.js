@@ -127,10 +127,11 @@ const make = (initd, app) => {
             }
 
             let cookie_value = request.cookies[_initd.cookie_key]
-            if (!cookie_value) {
+            if (!cookie_value || !_subject_map.get(cookie_value)) {
                 cookie_value = _.random.id(32);
-                response.cookie(_initd.cookie_key, cookie_value, { maxAge: 900000, httpOnly: true });
             } 
+
+            response.cookie(_initd.cookie_key, cookie_value, { maxAge: 900000, httpOnly: true });
 
             let subject = _subject_map.get(cookie_value);
             if (!subject) {
@@ -143,7 +144,7 @@ const make = (initd, app) => {
                 .subscribe(
                     ad => {
                         response
-                            .set('Content-Type', 'text/plain')
+                            .set('Content-Type', 'application/json')
                             .send(JSON.stringify(ad, null, 2));
                     },
                     error => {
