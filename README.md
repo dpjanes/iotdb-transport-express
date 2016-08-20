@@ -10,8 +10,8 @@ can get updates
 
 There are code samples in GitHub.
 
-## Use
-### Express Transporter
+# Use
+## Express Transporter
 
 Use as follows. First, create an app
 
@@ -48,7 +48,7 @@ Then we tell the Express Transporter to get all the data from the IOTDB Transpor
 That's it - we are operational. If you go to [http://localhost:3000/things](http://localhost:3000/things)
 you will see an API to your things. 
 
-### Express Longpoll Transporter
+## Express Longpoll Transporter
 
 The setup is much the same as above, except you'll need
 to have cookie support

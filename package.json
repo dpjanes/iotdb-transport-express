@@ -4,10 +4,9 @@
         "url": "https://github.com/dpjanes/iotdb-transport-express/issues"
     }, 
     "dependencies": {
-        "iotdb": ">=0.14.0", 
-        "iotdb-errors": "~0.0.3", 
-        "iotdb-links": "~0.0.4", 
-        "iotdb-transport": "~0.0.35", 
+        "iotdb": ">=3.0.0", 
+        "iotdb-errors": "~3.0.2", 
+        "iotdb-transport": "~3.0.2", 
         "rx": "~4.1.0"
     }, 
     "description": "IOTDB Transporter for Express", 

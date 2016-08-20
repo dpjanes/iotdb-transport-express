@@ -58,14 +58,14 @@ express_transporter
             let count = 0;
             setInterval(() => {
                 unirest
-                    .put("http://127.0.0.1:3000/" + ad.id + "/ostate")
+                    .put("http://127.0.0.1:3000/things/" + ad.id + "/ostate")
                     .type('json')
                     .json({
                         "on": count++ % 2,
                     })
                     .end((result) => {
                         if (result.error) {
-                            console.log("#", "unirest.put", _.error.message(result.error))
+                            console.log("#", "unirest.put", result.error);
                         } else {
                             console.log("+", "unirest.put", result.body);
                         }
