@@ -6,7 +6,7 @@
     "dependencies": {
         "iotdb": ">=3.0.0", 
         "iotdb-errors": "~3.0.2", 
-        "iotdb-transport": "~3.0.4", 
+        "iotdb-transport": "~3.0.5", 
         "rx": "~4.1.0"
     }, 
     "description": "IOTDB Transporter for Express", 
@@ -34,5 +34,5 @@
     "scripts": {
         "test": "grunt"
     }, 
-    "version": "3.0.2"
+    "version": "3.0.3"
 }
