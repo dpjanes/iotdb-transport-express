@@ -31,7 +31,7 @@ const app = express();
 app.use(cookie_parser());
 app.use(body_parser.json());
 app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+    console.log('Example app listening on port 3000!');
 });
 
 // this is the source 
@@ -45,6 +45,4 @@ const iotdb_transporter = iotdb_transport.make({}, iotdb.connect("WeMoSocket"));
 const longpoll_transport = require("../longpoll")
 const longpoll_transporter = longpoll_transport.make({
     prefix: "/things",
-}, app)
-
-longpoll_transporter.use(iotdb_transporter)
+}, iotdb_transporter, app)

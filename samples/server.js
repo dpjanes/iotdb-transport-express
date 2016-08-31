@@ -29,7 +29,7 @@ const unirest = require('unirest');
 const app = express();
 app.use(body_parser.json());
 app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+    console.log('Example app listening on port 3000!');
 });
 
 // this is the source 
@@ -43,7 +43,4 @@ const iotdb_transporter = iotdb_transport.make({}, iotdb.connect("WeMoSocket"));
 const express_transport = require("../transporter")
 const express_transporter = express_transport.make({
     prefix: "/things",
-}, app)
-
-// the actual gets data from the source
-express_transporter.use(iotdb_transporter)
+}, iotdb_transporter, app)

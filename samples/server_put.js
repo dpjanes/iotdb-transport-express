@@ -26,35 +26,35 @@ const express = require('express');
 const body_parser = require("body-parser");
 const unirest = require('unirest');
 
+const iotdb_transport_iotdb = require("../../iotdb-transport-iotdb/transporter");
+const iotdb_transport_express = require("../transporter")
+
 const app = express();
 app.use(body_parser.json());
 app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+    console.log('Example app listening on port 3000!');
 });
 
 // this is the source 
 const iotdb = require("iotdb");
 iotdb.use("homestar-wemo");
 
-const iotdb_transport = require("../../iotdb-transport-iotdb/transporter");
-const iotdb_transporter = iotdb_transport.make({}, iotdb.connect("WeMoSocket"));
+const things = iotdb.connect("WeMoSocket");
+
+const iotdb_transporter = iotdb_transport_iotdb.make({}, things);
 
 // this is the actual transporter
-const express_transport = require("../transporter")
-const express_transporter = express_transport.make({
+const express_transporter = iotdb_transport_express.make({
     prefix: "/things",
-}, app)
+}, iotdb_transporter, app)
 
-// the actual gets data from the source
-express_transporter.use(iotdb_transporter)
-
-/**
- *  The clever bit - when one is added, test the put using Unirest
- */
-express_transporter
+// The clever bit - when one is added, test the put using Unirest
+iotdb_transporter
     .added()
     .subscribe(
         ad => {
+            console.log("-", "thing added");
+
             let count = 0;
             setInterval(() => {
                 unirest
@@ -73,5 +73,4 @@ express_transporter
             }, 1500);
         }
     );
-
 
