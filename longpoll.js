@@ -28,17 +28,19 @@ const iotdb_transport = require('iotdb-transport');
 const errors = require('iotdb-errors');
 
 const Rx = require('rx');
-const events = require('events');
+const assert = require('assert');
 
 const logger = iotdb.logger({
     name: 'iotdb-transport-fs',
     module: 'longpoll',
 });
 
-const make = (initd, app) => {
+const make = (initd, underlying, app) => {
     const self = iotdb_transport.make();
 
-    const _app = app;
+    assert.ok(underlying);
+    assert.ok(app);
+
     const _subject_map = new Map();
 
     const _initd = _.d.compose.shallow(
@@ -54,35 +56,6 @@ const make = (initd, app) => {
             cookie_key: "transport-longpoll",
         }
     );
-
-    // boilerplate
-    self.rx.list = (observer, d) => {
-        observer.onCompleted();
-    };
-
-    self.rx.put = (observer, d) => {
-        observer.onCompleted();
-    };
-    
-    self.rx.get = (observer, d) => {
-        observer.onCompleted();
-    };
-    
-    self.rx.bands = (observer, d) => {
-        observer.onCompleted();
-    };
-
-    self.rx.updated = (observer, d) => {
-        observer.onCompleted();
-    };
-
-    // important: when we get hooked up via use, _then_ start monitoring
-    const _super_use = self.use;
-    self.use = (...rest) => {
-        _super_use(...rest);
-
-        _monitor();
-    };
 
     // -- internals 
     const _make_replay_subject = () => {
@@ -104,7 +77,7 @@ const make = (initd, app) => {
     };
 
     const _monitor = () => {
-        self.updated()
+        underlying.updated()
             .subscribe(
                 _updated,
                 error => {
@@ -121,7 +94,7 @@ const make = (initd, app) => {
             id: _initd.name,
         });
 
-        _app.use(url, (request, response) => {
+        app.use(url, (request, response) => {
             if (!request.cookies) {
                 throw new errors.Internal("cookies middleware is required");
             }
@@ -149,7 +122,7 @@ const make = (initd, app) => {
                     },
                     error => {
                         logger.error({
-                            method: "_app_get/_app.use/subject.error",
+                            method: "_app_get/app.use/subject.error",
                             error: _.error.message(error),
                         }, "may not be serious");
                     },
@@ -166,7 +139,7 @@ const make = (initd, app) => {
     };
 
     _app_get();
-    // _monitor();
+    _monitor();
 
     return self;
 };

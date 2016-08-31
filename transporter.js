@@ -28,17 +28,18 @@ const iotdb_transport = require('iotdb-transport');
 const errors = require('iotdb-errors');
 
 const Rx = require('rx');
-const events = require('events');
+const assert = require('assert');
 
 const logger = iotdb.logger({
     name: 'iotdb-transport-fs',
     module: 'transporter',
 });
 
-const make = (initd, app) => {
+const make = (initd, underlying, app) => {
     const self = iotdb_transport.make();
 
-    const _app = app;
+    assert.ok(underlying);
+    assert.ok(app);
 
     const _initd = _.d.compose.shallow(
         initd, {
@@ -52,32 +53,12 @@ const make = (initd, app) => {
         }
     );
 
-    self.rx.list = (observer, d) => {
-        observer.onCompleted();
-    };
-
-    self.rx.put = (observer, d) => {
-        observer.onCompleted();
-    };
-    
-    self.rx.get = (observer, d) => {
-        observer.onCompleted();
-    };
-    
-    self.rx.bands = (observer, d) => {
-        observer.onCompleted();
-    };
-
-    self.rx.updated = (observer, d) => {
-        observer.onCompleted();
-    };
-
     // -- internals 
     const _app_get_things = () => {
         const url = _initd.channel(_initd, {});
 
-        _app.get(url, (request, response) => {
-            self.list({
+        app.get(url, (request, response) => {
+            underlying.list({
                 user: request.user,
             })
                 .reduce(( ids, ld ) => ids.concat([ "./" + ld.id, ]), [])
@@ -107,8 +88,8 @@ const make = (initd, app) => {
             id: ':id'
         });
 
-        _app.use(url, (request, response) => {
-            self.bands({
+        app.get(url, (request, response) => {
+            underlying.bands({
                 id: request.params.id,
                 user: request.user,
             })
@@ -143,8 +124,8 @@ const make = (initd, app) => {
             band: ':band'
         });
 
-        _app.get(url, (request, response) => {
-            self.get({
+        app.get(url, (request, response) => {
+            underlying.get({
                 id: request.params.id,
                 band: request.params.band,
                 user: request.user,
@@ -187,42 +168,60 @@ const make = (initd, app) => {
             band: ':band'
         });
 
-        _app.put(url, (request, response) => {
-            self.put({
+        app.put(url, (request, response) => {
+            const _handle = value => {
+                underlying.put({
+                    id: request.params.id,
+                    band: request.params.band,
+                    value: _.timestamp.add(request.body),
+                    user: request.user,
+                })
+                    .first()
+                    .subscribe(
+                        d => {
+                            const rd = _.d.compose.shallow({
+                                "@id": _initd.channel(_initd, {
+                                    id: request.params.id, 
+                                    band: request.params.band
+                                }),
+                                "@context": "https://iotdb.org/pub/iot",
+                                "iot:thing": "..",
+                            }, d.value);
+
+                            response
+                                .set('Content-Type', 'application/json')
+                                .set('Access-Control-Allow-Origin', '*')
+                                .send(JSON.stringify(rd, null, 2));
+                        },
+                        error => {
+                            if (error instanceof Rx.EmptyError) {
+                                error = new errors.NotFound();
+                            }
+
+                            response
+                                .set('Content-Type', 'text/plain')
+                                .status(_.error.code(error))
+                                .send(_.error.message(error))
+                        }
+
+                    );
+            };
+
+            // we treat PUT as a PATCH
+            underlying.get({
                 id: request.params.id,
                 band: request.params.band,
-                value: _.timestamp.add(request.body),
                 user: request.user,
             })
                 .first()
                 .subscribe(
                     d => {
-                        const rd = _.d.compose.shallow({
-                            "@id": _initd.channel(_initd, {
-                                id: request.params.id, 
-                                band: request.params.band
-                            }),
-                            "@context": "https://iotdb.org/pub/iot",
-                            "iot:thing": "..",
-                        }, d.value);
-
-                        response
-                            .set('Content-Type', 'application/json')
-                            .set('Access-Control-Allow-Origin', '*')
-                            .send(JSON.stringify(rd, null, 2));
+                        _handle(_.d.compose.shallow(request.body, d.value));
                     },
                     error => {
-                        if (error instanceof Rx.EmptyError) {
-                            error = new errors.NotFound();
-                        }
+                        _handle(request.body);
+                    })
 
-                        response
-                            .set('Content-Type', 'text/plain')
-                            .status(_.error.code(error))
-                            .send(_.error.message(error))
-                    }
-
-                );
         });
     };
 

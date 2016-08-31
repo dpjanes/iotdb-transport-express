@@ -46,11 +46,7 @@ Then we create a Express Transporter.
     const express_transport = require("iotdb-transport-express");
     const express_transporter = express_transport.make({
         prefix: "/things",
-    }, app)
-
-Then we tell the Express Transporter to get all the data from the IOTDB Transporter.
-
-    express_transporter.use(iotdb_transporter)
+    }, iotdb_transporter, app)
 
 That's it - we are operational. If you go to [http://localhost:3000/things](http://localhost:3000/things)
 you will see an API to your things. 
@@ -67,9 +63,7 @@ Then add this code:
 
     const longpoll_transporter = express_transport.longpoll.make({
         prefix: "/things",
-    }, app)
-
-    longpoll_transporter.use(iotdb_transporter)
+    }, iotdb_transporter, app)
 
 That's it - we are operational. If you go to [http://localhost:3000/things/.longpoll](http://localhost:3000/things/.longpoll)
 it will longpoll until things change (or a timeout happens).
