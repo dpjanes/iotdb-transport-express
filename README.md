@@ -1,7 +1,14 @@
 # iotdb-transport-express
-[IOTDB](https://iotdb.org) Transporter for [Express](https://expressjs.com/). 
+[IOTDB](https://github.com/dpjanes/node-iotdb) 
+[Transporter](https://github.com/dpjanes/node-iotdb/blob/master/docs/transporters.md)
+for
+[Express](https://expressjs.com/)
 
 <img src="https://raw.githubusercontent.com/dpjanes/iotdb-homestar/master/docs/HomeStar.png" align="right" />
+
+# About
+
+* [Read more about Transporters](https://github.com/dpjanes/node-iotdb/blob/master/docs/transporters.md)
 
 This module will let you create web pages with your transporters. 
 There's two different (but complimentary) transporters in this package,

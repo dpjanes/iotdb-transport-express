@@ -76,7 +76,7 @@ const make = (initd, app) => {
     const _app_get_things = () => {
         const url = _initd.channel(_initd, {});
 
-        _app.use(url, (request, response) => {
+        _app.get(url, (request, response) => {
             self.list({
                 user: request.user,
             })
