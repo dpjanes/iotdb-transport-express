@@ -6,7 +6,7 @@
     "dependencies": {
         "iotdb": ">=3.0.0", 
         "iotdb-errors": "~3.0.2", 
-        "iotdb-transport": "~3.0.6", 
+        "iotdb-transport": "~3.0.9", 
         "rx": "~4.1.0"
     }, 
     "description": "IOTDB Transporter for Express", 
@@ -19,7 +19,7 @@
         "grunt-jsbeautifier": "~0.2.13", 
         "jshint-stylish": "~2.2.1", 
         "load-grunt-tasks": "~3.5.2", 
-        "request": "~2.74.0"
+        "request": "~2.75.0"
     }, 
     "homepage": "https://homestar.io", 
     "homestar": {}, 
@@ -34,5 +34,5 @@
     "scripts": {
         "test": "grunt"
     }, 
-    "version": "3.0.4"
+    "version": "3.0.5"
 }
