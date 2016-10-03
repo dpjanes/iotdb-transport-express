@@ -37,6 +37,7 @@ const logger = iotdb.logger({
 
 const make = (initd, underlying, app) => {
     const self = iotdb_transport.make();
+    self.name = "iotdb-transport-express/longpoll";
 
     assert.ok(underlying);
     assert.ok(app);
